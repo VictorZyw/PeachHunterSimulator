@@ -14,9 +14,22 @@ public class Peach implements Comparable<Peach>{
   public int getRipeness(){ return ripeness; }
   
   /** ages a peach in some way */
-  public void age(){}
-  
-  @Override 
+  public void age(){
+    if(!bad) {
+      if (this.ripeness+5>30){
+        this.ripeness=30;
+        this.bad=true;
+      }else {
+        this.ripeness += 3;
+      }
+    }
+  }
+
+  public boolean isBad() {
+    return bad;
+  }
+
+  @Override
   public int compareTo(Peach other){
     return 0;
   }
