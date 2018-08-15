@@ -20,6 +20,7 @@ public class Player{
  protected boolean helper_sent;//(New attribute) whether a helper needs to be created to help this player.default: false
  public static String[]     names={"Chen","Zhang","Zhou","Jason","Robert","Smid","Mengchi"};  //(New attribute) store the random name
  protected String job;
+ protected int alive=1;  //if  alive== 1  he's alive ,  alive==0 not created yet , alive ==-1 they are dead.
  
  /** Creates a player in the game
   * 

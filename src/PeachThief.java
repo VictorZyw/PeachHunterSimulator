@@ -4,7 +4,7 @@ import java.util.Random;
 public class PeachThief extends Player {
 	protected static int thief_counter=0;//counter for the Player
 	public PeachThief(World w, String name, Location location, List<Peach> peaches) {
-		super(w, name+"-Thief"+thief_counter, location, peaches, 70, RGB.GREEN);
+		super(w, name+"-Thief"+thief_counter, location, peaches, 70, RGB.BLUE);
 		this.job = "PeachThief";
 		thief_counter++;
 	}
@@ -12,7 +12,8 @@ public class PeachThief extends Player {
 
 	// each turn make a decision first then check the result of this decision
 	public void play() {
-		if (this.getHealth()<= 0) {            // if a player' hp is below or equal to 0, he is dead and drop all peaches on the ground .
+		if (this.getHealth()<= 0) {            
+			// if a player' hp is below or equal to 0, he is dead and drop all peaches on the ground .
 			die();
 			return;
 		}
@@ -22,7 +23,7 @@ public class PeachThief extends Player {
 	
 	private String makeDecision() {
 		// eat a good peach if the thief has at least one and his health is less than 50
-		if(this.getHealth()<=50 && this.getPeaches().size() > 0) {
+		if(this.getHealth()<50 && this.getPeaches().size() > 0) {
 			for(int i = 0; i < this.getPeaches().size(); i++) {
 				if(!this.getPeaches().get(i).isBad()) {
 					this.eatPeach(this.getPeaches().get(i));
@@ -31,8 +32,8 @@ public class PeachThief extends Player {
 			}
 		}
 
-		// if there are any other players in this world and they are peachhunter or pitfinder
-		// the thief will try to get closer to them
+		// if there are any other players in this world who are peachhunter or pitfinder
+		// and who have any peaches, the thief will try to get closer to them
 		for (int i = 0;i < this.getWorld().getPlayers().size(); i++) {
 			if(this.getWorld().getPlayers().get(i).job == "PeachHunter"
 					/* || this.getWorld().getPlayers().get(i).job == Pitfinder*/
@@ -67,54 +68,34 @@ public class PeachThief extends Player {
 				}
 			}
 		}
-		// if the thief has no targets, he will hang out widdershins
-		if (this.getLocation().getPosition().getX()>0 && (this.getLocation().getPosition().getY() != 0 || 
-				this.getLocation().getPosition().getY() != this.getWorld().getWorld()[0].length-1)){
+		// if the thief has no targets, he will go to and hide in corner
+		int x = this.getLocation().getPosition().getY();
+		int y = this.getLocation().getPosition().getX();
+		if ((x == 0 && y == 0) || (x == 0 && y == this.world.getWorld()[0].length) || 
+			(x == this.world.getWorld().length && y ==0 ) || (x == this.world.getWorld().length && y ==this.world.getWorld()[0].length )) {
+			return "stay";
+		}
+		if (x == 0 || x == this.world.getWorld().length) {
 			this.move(Directions.UP);
-			this.getWorld().updateNews(this.getName()+" entered ["+
-					this.getLocation().getPosition().getY()+","+
-					(this.getLocation().getPosition().getX())+"]");
 			return "move";
 		}
-		if (this.getLocation().getPosition().getX() == 0 && this.getLocation().getPosition().getY() > 0) {
+		if (y == 0 || y == this.world.getWorld()[0].length) {
 			this.move(Directions.LEFT);
-			this.getWorld().updateNews(this.getName()+" entered ["+
-					(this.getLocation().getPosition().getY())+","+
-					this.getLocation().getPosition().getX()+"]");
 			return "move";
 		}
-		if (this.getLocation().getPosition().getY() == 0 && this.getLocation().getPosition().getX() < this.getWorld().getWorld().length-1) {
-			this.move(Directions.DOWN);
-			this.getWorld().updateNews(this.getName()+" entered ["+
-					this.getLocation().getPosition().getY()+","+
-					(this.getLocation().getPosition().getX())+"]");
-			return "move";
-		}
-		if (this.getLocation().getPosition().getX() == this.getWorld().getWorld().length-1 && this.getLocation().getPosition().getY() < this.getWorld().getWorld()[0].length-1) {
-			this.move(Directions.RIGHT);
-			this.getWorld().updateNews(this.getName()+" entered ["+
-					(this.getLocation().getPosition().getY())+","+
-					this.getLocation().getPosition().getX()+"]");
-			return "move";
-		}
-		if (this.getLocation().getPosition().getY() == this.getWorld().getWorld()[0].length-1 && this.getLocation().getPosition().getX()>0) {
-			this.move(Directions.UP);
-			this.getWorld().updateNews(this.getName()+" entered ["+
-					(this.getLocation().getPosition().getY())+","+
-					(this.getLocation().getPosition().getX())+"]");
-			return "move";
-		}
-		return "stay";
+		this.move(Directions.UP);
+		return "move";
 	}
 
-
-
-	// check other players in this location
 	private void checkResult(String decision) {
-
+		
+		if (decision.equals("stay")) {
+			this.world.updateNews(this.getName()+" stay in "+this.getLocation().getPosition().toString());
+		}
+		// check other players in this location
 		// find the peatchhunters and pitfinders, then interact with them
 		for(int i = 0;i <this.getLocation().getPlayers().size();i++) {
-			if(this.getWorld().getPlayers().get(i).job == "PeachHunter"
+			if(this.getLocation().getPlayers().get(i).job == "PeachHunter"
 					/* || this.getWorld().getPlayers().get(i).job == "Pitfinder"*/) {
 				this.interact(this.getLocation().getPlayers().get(i));
 			}
@@ -147,6 +128,9 @@ public class PeachThief extends Player {
 
 		// eat the first peach stealed
 		if (roll.nextDouble() <= 0.75 && other.getPeaches().size() > 0) {
+				String text = other.getName()+"was stolen";
+				System.out.println(text);
+				this.getWorld().updateNews(text);
 				this.eatPeach(other.getPeach());
 		}else {
 			success = false;
@@ -162,9 +146,7 @@ public class PeachThief extends Player {
 		}
 	}
 	
-	
-	
-	
+	// eat a special peach
 	private void eatPeach(Peach peach) {
 		if(peach.isBad()){
 			this.health -= peach.getRipeness();
@@ -175,6 +157,5 @@ public class PeachThief extends Player {
 			this.peaches.remove(peach);
 			this.world.updateNews(this.getName() + " has eaten a peach and gains " + peach.getRipeness() + " health.");
 		}
-		
 	}
 }

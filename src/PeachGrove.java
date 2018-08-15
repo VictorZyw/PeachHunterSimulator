@@ -17,12 +17,9 @@ public class PeachGrove extends Location {
 
         Random random = new Random();
 
-        for(int i = 0; i < random.nextInt(50)+50;i++ ) {
-
+        for(int i = 0; i < random.nextInt(50)+100;i++ ) {
             Peach peach = new Peach(random.nextInt(10),false);
-
             this.peachesAtTree.add(peach);
-
         }
 
         this.playerVisit = new ArrayList<PlayerVisit>();

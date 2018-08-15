@@ -16,6 +16,7 @@ public class World {
   protected List<Player> players; // all players in the world
   protected List<Player> dead_players; // all players in the world
   protected List<String> realTimeInformation = new ArrayList<String>();  // record the real time events
+  protected List<Helper> helpers;
 
 
   public World() {
@@ -27,14 +28,12 @@ public class World {
       for (int c = 0; c < 3; c += 1) {
 
         locations[r][c] = new EmptyLocation(new Position(r, c), "Empty Location.");
-
       }
-
     }
-
     home = locations[0][0];
 
     players = new ArrayList<Player>();
+    helpers=new ArrayList<Helper>();
     this.dead_players=new ArrayList<Player>();
 
   }
@@ -81,28 +80,55 @@ public class World {
     return this;
 
   }
+  public void helperConstructor(){
+    List<Helper> helpers = new ArrayList<Helper>();
+    for(Player p:this.getPlayers()) {
+        List<Peach> peaches_of_helper = new ArrayList<Peach>();
+        for (int i = 0; i < 5; i++) {
+          peaches_of_helper.add(new Peach(15));
+        }
+        helpers.add(new Helper(this, "Mercy", peaches_of_helper));
+    }
+    this.helpers=helpers;
+    this.getPlayers().addAll(helpers);
+  }
 
   public void helperGenerator(){
-  List<Player> temp = new ArrayList<Player>();
+    int angels=0;
     for(Player p:this.getPlayers()) {
-      if (p.need_help&& !p.helper_sent) {
-        List<Peach> peaches_of_helper = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-          peaches_of_helper.add(new Peach(10));
+      System.out.println(p.getName()+p.job+","+String.valueOf(p.need_help)+","+String.valueOf(p.helper_sent));
+      if ((!p.job.equals("Helper"))&&p.need_help&& (!p.helper_sent)) {
+        System.out.println(p.getName()+" is dying,and calling for help.");
+        for(Player h:this.getPlayers()){
+          if(h.job.equals("Helper")){
+            if(h.alive!=1){  //(((Helper)h).target.getName().equals(h.getName())
+              ((Helper)h).target=p;
+              h.alive=1;
+              for (int i = 0; i < 5; i++) {
+                h.peaches.add(new Peach(15));
+              }
+              p.helper_sent=true;
+              angels++;
+              break;
+            }
+          }
         }
-        temp.add(new Helper(this, "Mercy", peaches_of_helper, p));
-        p.helper_sent=true;
       }
     }
-    int angels=temp.size();
-    this.getPlayers().addAll(temp);
     if(angels>0){
       System.out.println("@ "+String.valueOf(angels)+" angels have arrived at this world to rescue you mortals!!");
     }
   }
 
   public void deadPlayersHandler(){
-    this.getPlayers().removeAll(dead_players);  //remove the player from world
+    for(Player d:dead_players){
+      for(Player p:this.getPlayers()) {
+        if(p.getName().equals(d.getName())){
+          p.alive = -1;  //find the player to be not alive  from the world.player
+        }
+      }
+    };
+    this.dead_players=new ArrayList<Player>();//clear the dead player list
   }
 
 
@@ -195,39 +221,24 @@ public class World {
 
 
   public String getPlayersInformation() {
-
     int badPeaches = 0;
-
     String text = "<html>Player Information:<br><br>";
-
     for(int i = 0;i < this.getPlayers().size(); i++) {
-
-      text += this.getPlayers().get(i).toString() + "    " +
-
-              this.getPlayers().get(i).getLocation().getPosition().toString() +
-
-              "  health: "+this.getPlayers().get(i).getHealth()+"<br>";
-
-      for(int j = 0; j <this.getPlayers().get(i).getPeaches().size(); j++) {
-
-        if (this.getPlayers().get(i).getPeaches().get(j).isBad()) {
-
-          badPeaches ++;
-
+      if (this.getPlayers().get(i).alive == 1) {
+        text += this.getPlayers().get(i).toString() + "    " +
+                this.getPlayers().get(i).getLocation().getPosition().toString() +
+                "  health: "+this.getPlayers().get(i).getHealth()+"<br>";
+        for(int j = 0; j <this.getPlayers().get(i).getPeaches().size(); j++) {
+          if (this.getPlayers().get(i).getPeaches().get(j).isBad()) {
+            badPeaches ++;
+          }
         }
-
+        text += "Good peaches: "+(this.getPlayers().get(i).getPeaches().size()-badPeaches)+
+                "  Bad peaches: "+badPeaches+"<br><br>";
       }
-
-      text += "Good peaches: "+(this.getPlayers().get(i).getPeaches().size()-badPeaches)+
-
-              "  Bad peaches: "+badPeaches+"<br><br>";
-
     }
-
     text += "</html>";
-
     return text;
-
   }
 
 }

@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 public class PeachHunter extends Player {
     protected static int hunter_counter=0;//counter for the Player
@@ -101,14 +102,27 @@ public class PeachHunter extends Player {
             System.out.println(this.getName()+" stays at "+this.getLocation());
             return;
         }else {
-            if (target.getPosition().getX() < this.getLocation().getPosition().getX()) {
-                move(Directions.UP);
-            } else if (target.getPosition().getX() > this.getLocation().getPosition().getX()) {
-                move(Directions.DOWN);
-            } else if (target.getPosition().getY() > this.getLocation().getPosition().getY()) {
-                move(Directions.RIGHT);
-            } else {
-                move(Directions.LEFT);
+            Random ran=new Random();
+            if (ran.nextDouble()<0.5){
+                if (target.getPosition().getX() < this.getLocation().getPosition().getX()) {
+                    move(Directions.UP);
+                } else if (target.getPosition().getX() > this.getLocation().getPosition().getX()) {
+                    move(Directions.DOWN);
+                } else if (target.getPosition().getY() > this.getLocation().getPosition().getY()) {
+                    move(Directions.RIGHT);
+                } else {
+                    move(Directions.LEFT);
+                }
+            } else{
+                 if (target.getPosition().getY() > this.getLocation().getPosition().getY()) {
+                     move(Directions.RIGHT);
+                 } else if (target.getPosition().getY() < this.getLocation().getPosition().getY()) {
+                     move(Directions.LEFT);
+                 }else if (target.getPosition().getX() < this.getLocation().getPosition().getX()) {
+                    move(Directions.UP);
+                } else  {
+                    move(Directions.DOWN);
+                }
             }
             location_visits.add(this.getLocation());
             // new Location passive status check and HP deduction, and handle all "enter" events
@@ -197,6 +211,11 @@ public class PeachHunter extends Player {
                 return;
             }
         } else if(this.getLocation().property.equals("PeachGrove")) {
+            if (this.getterOfGrovevisit(this.getLocation())==null) {
+                grove_visits.add(new GroveVisit((PeachGrove) (this.getLocation()), ((PeachGrove) (this.getLocation())).getterOfPeachesAtTree().size() <= 0));  //add this grove to the record of this hunter
+            }else{
+                getterOfGrovevisit(this.getLocation()).runout=(((PeachGrove) (this.getLocation())).getterOfPeachesAtTree().size() <= 0);
+            }
             if (this.peaches.size() >= 50 ||this.peaches.size() >= maxcarry) { //if carrying enough peaches or cannot carry any more
                 moveOneStep(goHome());
                 return;

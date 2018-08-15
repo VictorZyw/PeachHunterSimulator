@@ -7,9 +7,16 @@ public class Demo {
         world.getWorld()[0][0] = new Home(world,new Position(0,0),"My home",new ArrayList<>(),new ArrayList<>());
         PeachHunter peachHunter = new PeachHunter(world, Player.names[new Random().nextInt(Player.names.length)], world.home, new ArrayList<Peach>());
         world.addPlayer(peachHunter);
-        world.getWorld()[2][2]=new PeachGrove(new Position(2,2),"PeachGrove",new ArrayList<Player>(),new ArrayList<Peach>());
+        world.getWorld()[2][2]=new PeachGrove(new Position(2,2),"Grove1",new ArrayList<Player>(),new ArrayList<Peach>());
         Random randNum = new Random();
         switch(choice){
+            case 5:
+                PeachThief peachThief2 = new PeachThief(world, "Dog", world.getWorld()[1][1], new ArrayList<Peach>());
+                world.addPlayer(peachThief2);
+                world.getWorld()[0][2]=new PeachGrove(new Position(0,2),"Grove2",new ArrayList<Player>(),new ArrayList<Peach>());
+            case 4:
+                PeachHunter peachHunter2 = new PeachHunter(world, Player.names[new Random().nextInt(Player.names.length)], world.home, new ArrayList<Peach>());
+                world.addPlayer(peachHunter2);
         	case 3:
         		PeachThief peachThief = new PeachThief(world, "Cat", world.getWorld()[2][1], new ArrayList<Peach>());
         		world.addPlayer(peachThief);
@@ -30,6 +37,7 @@ public class Demo {
             default:
                 break;
         };
+        world.helperConstructor();
         Screen thisScreen = new Screen(world);
         thisScreen.showScreen();
 
@@ -46,12 +54,13 @@ public class Demo {
             System.out.println("##############Turn "+turns+" Starts.##############");
             world.helperGenerator();
             for (Player player:world.getPlayers()){
-                System.out.println();
-                System.out.println("&&"+player.getName() +"'s turn!");
-                System.out.println(player.getName() + " is at " + player.getLocation()+ " at the beginning of this turn.");
-                player.play();
-                System.out.println("&&"+player.getName() +" now has "+player.getHealth()+"HP.");
-
+                if(player.alive==1){
+                    System.out.println();
+                    System.out.println("&&"+player.getName() +"'s turn!");
+                    System.out.println(player.getName() + " is at " + player.getLocation()+ " at the beginning of this turn.");
+                    player.play();
+                    System.out.println("&&"+player.getName() +" now has "+player.getHealth()+"HP.");
+                }
             }
             world.deadPlayersHandler();
             System.out.println(world.home);
