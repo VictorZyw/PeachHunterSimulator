@@ -51,7 +51,7 @@ public class Player{
  public Location     getLocation(){ return location; }
  
  /** Getter for a player's peach */
- public Peach  getPeach(){ return peaches == null ? null : peaches.remove(0); }
+ public Peach  getPeach(){ return peaches.size()<=0 ? null : peaches.remove(0); }
 
 
  /** Getter for a player's all peaches */
@@ -72,15 +72,20 @@ public class Player{
    }
  }
  /**NEW METHOD
-  * define the death of a player, del this player
-  * @param null
+  * define the death of a player, del this player both from world and the current location.
+  * @param no param
+  * @return void
   */
-
  public void die(){
   int sizeofpeaches0 = this.peaches.size();
   System.out.println(this.name + " is DEAD at " + this.getLocation().getDescription() + "!!RIP!!");
   dropPeaches(sizeofpeaches0);
-  this.getLocation().exit(this);
+  this.getLocation().exit(this);       //remove the player from this location
+  for (int i=0;i<this.world.getPlayers().size();i++){   //remove the player from world
+   if(world.getPlayers().get(i).getName().equals(this.getName())){
+    this.world.getPlayers().remove(i);
+   }
+  }
   return;
  }
 
@@ -152,7 +157,11 @@ public class Player{
   */
  public void eatPeach(){
   Peach eaten_peach=this.getPeach();
-  this.setHealth(eaten_peach.bad?(this.getHealth()-eaten_peach.ripeness):(this.getHealth()+eaten_peach.ripeness));
+  if (eaten_peach==null){
+   return;
+  } else{
+   this.setHealth(eaten_peach.bad?(this.getHealth()-eaten_peach.ripeness):(this.getHealth()+eaten_peach.ripeness));
+  }
  }
  
  
@@ -164,7 +173,18 @@ public class Player{
  public void interact(Player p){
    // allows for some interaction with a player
  }
- 
+
+ /**get all peaches at location, without consideration of the player's capacity
+  * @param  no param
+  * @return void
+  */
+ public void pickPeachesAtLocation(){
+ //Get all peaches from the location
+  while(this.getLocation().peachesAtLocation.size()>0){
+     this.peaches.add(this.getLocation().getPeach());
+  }
+ }
+
  /** ask for help when they need it */
  public void getHelp(){ 
   world.getHome().callForHelp(this, location);
@@ -172,8 +192,7 @@ public class Player{
   // Create a new Peach list with 4 peaches of 50 ripeness.
   Random ran=new Random();
   Helper temp_helper=new Helper(world,Player.names[ran.nextInt(Player.names.length)],peaches,this);//Create a new helper at home
-  location.enter(temp_helper);  //teleport the helper to the location that needs help
-  world.getHome().exit(temp_helper);   //remove the helper from the home
+  this.world.addPlayer(temp_helper);
   this.helped=true;
  }
  

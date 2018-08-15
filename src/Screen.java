@@ -19,6 +19,8 @@ public class Screen extends JFrame{
     private int[][] coordinatePrintTimes;
 
     private JLabel[] players;
+    
+    public JLabel[] playerInLocation;
 
     private JLabel playersInformation;
 
@@ -81,7 +83,6 @@ public class Screen extends JFrame{
             }
 
         }
-
         this.players = new JLabel[world.getPlayers().size()];
 
         for(int i = 0; i < players.length; i++) {
@@ -98,34 +99,13 @@ public class Screen extends JFrame{
 
 
 
-    private int checkPrintTimes(Position p) {
+    private int checkPlayerOrder(Location location,Player player) {
 
-        for(int i = 0 ; i < coordinatePrintTimes.length; i++) {
-
-            if(p.getX() == coordinatePrintTimes[i][0] && p.getY() == coordinatePrintTimes[i][1]) {
-
-                coordinatePrintTimes[i][2]++;
-
-                return coordinatePrintTimes[i][2];
-
-            }
-
-        }
-
-        for(int i = 0 ; i < coordinatePrintTimes.length; i++) {
-
-            if(coordinatePrintTimes[i][2] == -1) {
-
-                coordinatePrintTimes[i][0] = p.getX();
-
-                coordinatePrintTimes[i][1] = p.getY();
-
-                coordinatePrintTimes[i][2] = 1;
-
-            }
-
-        }
-
+    	for(int i = 0;i < location.getPlayers().size(); i++) {
+    		if(location.getPlayers().get(i).equals(player)) {
+    			return i+1;
+    		}
+    	}
         return 1;
 
     }
@@ -147,16 +127,28 @@ public class Screen extends JFrame{
         }
 
 
-
+        
         for(int i = 0; i< world.getPlayers().size(); i++) {
-
             players[i].setText(world.getPlayers().get(i).toString());
 
-            players[i].setBounds(world.getPlayers().get(i).getLocation().getPosition().getX()*200+65,world.getPlayers().get(i).getLocation().getPosition().getY()*200+10*this.checkPrintTimes(world.getPlayers().get(i).getLocation().getPosition())+50,100,50);
+            players[i].setBounds(world.getPlayers().get(i).getLocation().getPosition().getX()*200+65,world.getPlayers().get(i).getLocation().getPosition().getY()*200+10*this.checkPlayerOrder(world.getPlayers().get(i).getLocation(),world.getPlayers().get(i))+50,100,50);
 
             this.add(players[i]);
 
         }
+        /*
+        for(int i = 0; i<world.getWorld().length;i++) {
+        	for(int j = 0; j <world.getWorld()[0].length;j++) {
+        		playerInLocation= new JLabel[world.getWorld()[i][j].getPlayers().size()];
+        		for(int k = 0 ; k<playerInLocation.length; k++){
+        			playerInLocation[k] = new JLabel(world.getWorld()[i][j].getPlayers().get(k).toString());
+        			playerInLocation[k].setBounds(world.getPlayers().get(i).getLocation().getPosition().getX()*200+65,world.getPlayers().get(i).getLocation().getPosition().getY()*200+10*k+50,100,50);
+        		this.add(playerInLocation[k]);
+        		}
+        	}
+        }
+        */
+
 
         this.realTimeInformation.setText(world.getRealTimeInformation());
 

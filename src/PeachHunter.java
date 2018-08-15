@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class PeachHunter extends Player {
@@ -17,20 +18,46 @@ public class PeachHunter extends Player {
         this.job="PeachHunter";
         PeachHunter.hunter_counter+=1;
     }
+    @Override
 
-    private void pickPeachesAtTree(){
+    /**get all peaches at location, with consideration of the player's capacity. only for the PeachPit Location.
+     * @param  no param
+     * @return void
+     */
+    public void pickPeachesAtLocation() {
+        int pick_counter=0;
         while(this.peaches.size()<maxcarry) {
-            if(((PeachGrove)(this.getLocation())).getterOfPeachesAtTree().size()<=0){
-                for(GroveVisit visit:this.grove_visits){
-                    if(this.getLocation().equals((Location)(visit.grove))){
-                        visit.runout=true;
-                        System.out.println(this.getLocation().description+" runs out of peaches on the tree.");
-                    }
-                }
+            if(this.getLocation().peachesAtLocation.size()<=0){    //if the PeachesAtLocation less than 0;
+                System.out.println("  Action:"+this.name+" picked "+String.valueOf(pick_counter)+" peaches at "+this.getLocation()+"." );
                 return;
             }
-            this.peaches.add(((PeachGrove)this.getLocation()).getPeachesAtTree());
+            this.peaches.add(this.getLocation().getPeach());
+            pick_counter++;
         }
+        System.out.println("##Action:"+this.name+" picked "+String.valueOf(pick_counter)+" peaches at "+this.getLocation()+"." );
+
+    }
+
+    /**
+     *
+     */
+    private void pickPeachesAtTree(){
+        int pick_counter=0;
+        while(this.peaches.size()<maxcarry) {
+            if(((PeachGrove)(this.getLocation())).getterOfPeachesAtTree().size()<=0){    //if the PeachesAtTree less than 0;
+                for(GroveVisit visit:this.grove_visits){    // Traverse all grovevisit records of this hunter
+                    if(this.getLocation().equals((Location)(visit.grove))){                 //if the hunter's position ==this grove' position
+                        visit.runout=true;                //set the grove's runout value to true
+                        System.out.println("  Action:"+this.name+" picked "+String.valueOf(pick_counter)+" peaches at "+this.getLocation()+"." );
+                        System.out.println("  Action:"+this.name+" knew "+this.getLocation().description+" ran out of peaches on the tree.");
+                        return;
+                    }
+                }
+            }
+            this.peaches.add(((PeachGrove)this.getLocation()).getPeachesAtTree());
+            pick_counter++;
+        }
+        System.out.println("##Action:"+this.name+" picked "+String.valueOf(pick_counter)+" peaches at "+this.getLocation()+"." );
 
     }
 
@@ -50,10 +77,14 @@ public class PeachHunter extends Player {
         if (all_runout){        //no available grove found.
             List<Location> all_locations=world.getLocations();
             all_locations.removeAll(location_visits);
+            if (all_locations.size()<=0){
+                System.out.println("&&"+this.name+" found all groves run out, and no elsewhere to go.No choice but stay.");
+                return world.getHome();  // if all traversed and all run out.The hunter has to stay.
+            }
             for (Location loc:all_locations){
-                if(this.getLocation().distanceOf(loc)<min){
+                if(this.getLocation().distanceOf(loc)<min){   //try to locate the nearest uncharted cell
                     min=this.getLocation().distanceOf(loc);
-                    target=loc;        //find a nearest cell to search
+                    target=loc;        //find a nearest cell to go
                 }
             }
         }
@@ -79,11 +110,12 @@ public class PeachHunter extends Player {
                 move(Directions.LEFT);
             }
             location_visits.add(this.getLocation());
-            // new Location passive debuff check
+            // new Location passive passive status check
             if(this.getLocation().property.equals("PeachGrove")) {   //if it is a Grove
-                grove_visits.add(new GroveVisit((PeachGrove)(this.getLocation())));
-                ((PeachGrove)(this.getLocation())).playerVisitGrove(this);//((PeachGrove)(this.getLocation()))if at PeachGrove
+                grove_visits.add(new GroveVisit((PeachGrove)(this.getLocation())));  //add this grove to the record of this hunter
+                ((PeachGrove)(this.getLocation())).playerVisitGrove(this);// deal with the hp deduction
             } else if (this.getLocation().property.equals("PeachPit")){    //if it is a Pit
+                ((PeachPit)this.getLocation()).fallIntoPit(this,(Home)(this.getWorld().home));  //fall into a pit. check the hp deduction
             }
         }
     }
@@ -120,12 +152,14 @@ public class PeachHunter extends Player {
         } else if (this.getHealth() < 40) {
             eatPeach();
         }
+
             // HP Capacity status check
         if (this.getHealth() < 50) {         //if a player' hp is below 50, set the max number he can carry to 25
             this.maxcarry=25;
             if (this.peaches.size() > this.maxcarry) {
                 int sizeofpeaches1=this.peaches.size();
                 dropPeaches(sizeofpeaches1 - this.maxcarry);  //drop peaches to the max available number.
+                System.out.println("##Action:"+this.name+" dropped "+String.valueOf(sizeofpeaches1 - this.maxcarry)+" peaches at "+this.getLocation()+" due to low HP." );
             }
         } else{
             this.maxcarry=100;
@@ -134,29 +168,45 @@ public class PeachHunter extends Player {
             }
         }
         // Location active action check
+        System.out.println(" "+this.getName()+" has "+this.peaches.size()+" peaches." );//if at PeachGrove
         if(this.getLocation().property.equals("Home")){                 //if at Home
             int sizeofpeaches2=this.peaches.size();
             if (sizeofpeaches2==0){                                       //if no peaches ,then go to find grove
                 moveOneStep(goGrove());
                 return;
             }else {
-                dropPeaches(sizeofpeaches2);                              //else drop all peaches
-                ((Home)(this.getLocation())).peaches_track.put(this.getName(),sizeofpeaches2);
+                dropPeaches(sizeofpeaches2); //else drop all peaches
+                if (((Home)(this.getLocation())).peaches_track.containsKey(this.getName())==false){
+                    ((Home)(this.getLocation())).peaches_track.put(this.getName(),sizeofpeaches2);    //set a new record
+                } else { int pre_record=((Home)(this.getLocation())).peaches_track.get(this.getName());  //get the previous stored peaches record of this hunter
+                    ((Home)(this.getLocation())).peaches_track.put(this.getName(),pre_record+sizeofpeaches2);  //add new peaches number to this record.
+                }
+                int sum=((Home)(this.getLocation())).peaches_track.get("SUM");
+                ((Home)(this.getLocation())).peaches_track.put("SUM",sum+sizeofpeaches2);
                 return;
             }
-        } else if(this.getLocation().property.equals("PeachGrove")) {    //if at PeachGrove
-            if (this.peaches.size() >= 50) {
+        } else if(this.getLocation().property.equals("PeachGrove")) {
+            if (this.peaches.size() >= 50 ||this.peaches.size() >= maxcarry) { //if carrying enough peaches or cannot carry any more
                 moveOneStep(goHome());
                 return;
-            } else {
+            } else if(((PeachGrove)(this.getLocation())).getterOfPeachesAtTree().size()<=0){//if the Grove runs out,and hunter can carry more
+                moveOneStep(goGrove());
+                return;
+            }else{
                 pickPeachesAtTree();                                  //if not enough peaches carried with the hunter //if have peaches,pick peaches}
                 return;
             }
         } else if (this.getLocation().property.equals("PeachPit")){
-            moveOneStep(goGrove());
-            return;
+            pickPeachesAtLocation();
+            if (this.peaches.size() >= 50 ||this.peaches.size() >= maxcarry) {//if carrying enough peaches or cannot carry any more
+                moveOneStep(goHome());
+                return;
+            } else {
+                moveOneStep(goGrove());
+                return;
+            }
         } else {             //if elsewhere
-            if (this.peaches.size() >= 50) {
+            if (this.peaches.size() >= 50 ||this.peaches.size() >= maxcarry) {
                 moveOneStep(goHome());
                 return;
             } else {

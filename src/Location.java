@@ -3,7 +3,7 @@ import java.util.List;
 public class Location {
   protected Position position;
   
-  protected String description = "Nothing special about this location.";
+  protected String description = " Default location.";
   
   protected List<Player> peopleAtLocation = null;
   protected List<Peach>  peachesAtLocation = null;
@@ -41,7 +41,7 @@ public class Location {
   /** allows the location to do something to a player when entering the location */
   public void enter(Player p){
     p.setLocation(this);
-    System.out.println(p.getLocation()+"124141241414241");
+    //System.out.println(p.getLocation());
     peopleAtLocation.add(p);
     System.out.println(p.getName() + " just entered location " + position);
   }

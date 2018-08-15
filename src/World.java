@@ -29,7 +29,7 @@ public class World{
 
       for(int c=0; c<3; c+=1){
 
-        locations[r][c] = new EmptyLocation(new Position(r,c), "Nothing here to see.");
+        locations[r][c] = new EmptyLocation(new Position(r,c), "Empty Location.");
 
       }
 
@@ -76,7 +76,6 @@ public class World{
   public World addPlayer(Player p){
 
     players.add(p);
-    this.getWorld()[p.getLocation().getPosition().getX()][p.getLocation().getPosition().getY()].peopleAtLocation.add(p);
     return this;
 
   }

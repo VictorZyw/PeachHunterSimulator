@@ -11,6 +11,7 @@ public class Home extends Location {
         this.property="Home";
         System.out.println("There are "+String.valueOf(people.size())+" Players here.");
         this.peaches_track=new HashMap<>();
+        peaches_track.put("SUM",0);
         w.home=this;
     }
 
@@ -20,11 +21,11 @@ public class Home extends Location {
 
     @Override
     public String toString(){
-        String out="Peaches Records-";
+        String out="PeachesRecord-";
         for(Entry<String, Integer> entry : peaches_track.entrySet()) {
             out+=(entry.getKey() + ": " + entry.getValue()+"; ");
         }
-        return description +":"+ position.toString()+out;
+        return description +":"+ position.toString()+"("+out+")";
     }
 
 
