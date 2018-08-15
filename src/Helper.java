@@ -26,22 +26,22 @@ public class Helper extends Player {
 
     @Override
     public void play() {
-        if (target.need_help) {
-            if (!this.getLocation().equals(target.location)) {
+        if (target.need_help) {                                     //Check if the target player has called a helper
+            if (!this.getLocation().equals(target.location)) {      //Approaches the target if not at target's location
                 moveOneStep(target.getLocation());
             } else {
                 int temp = peaches.size();
                 int pre_hp = target.getHealth();
-                for (int i = 0; i < temp; i++) {
+                for (int i = 0; i < temp; i++) {                    //Feed peaches to the target
                     target.peaches.add(this.getPeach());
                     target.eatPeach();
                 }
                 int new_hp = target.getHealth();
                 System.out.println("##Action:" + this.getName() + " gave " + target.getName() + " " + String.valueOf(temp) + " peaches.");
                 System.out.println("##Action:" + target.getName() + " was fed " + String.valueOf(temp) + " peaches, and his hp restored from " + pre_hp + "HP to " + new_hp + "HP.");
-                target.need_help = false;
+                target.need_help = false;                           //Reset target's attribute to default
             }
-        } else {
+        } else {                                                    //Go home after finishing help
             if (this.getLocation().equals(world.getHome())) {
                 System.out.println("##Action:" + this.getName() + " finished his job and just got home.He would leave this world.");
                 target.helper_sent=false;

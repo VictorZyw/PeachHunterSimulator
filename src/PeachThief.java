@@ -10,7 +10,11 @@ public class PeachThief extends Player {
 	}
 
 
-	// each turn make a decision first then check the result of this decision
+	/*
+	 *  each turn make a decision first then check the result of this decision
+	 * @override Player.play()
+	 * @param null
+	 */
 	public void play() {
 		if (this.getHealth()<= 0) {            
 			// if a player' hp is below or equal to 0, he is dead and drop all peaches on the ground .
@@ -21,6 +25,12 @@ public class PeachThief extends Player {
 		checkResult(decision);
 	}
 	
+	
+	/*
+	 * the decision-making tree of thief
+	 * @param null
+	 * @return String; the decision of thief "stay" or "move"
+	 */
 	private String makeDecision() {
 		// eat a good peach if the thief has at least one and his health is less than 50
 		if(this.getHealth()<50 && this.getPeaches().size() > 0) {
@@ -87,6 +97,9 @@ public class PeachThief extends Player {
 		return "move";
 	}
 
+	/* check the result of decision and interact with other players/locations
+	 * @param String decision; the decision of thief
+	 */
 	private void checkResult(String decision) {
 		
 		if (decision.equals("stay")) {
@@ -121,7 +134,11 @@ public class PeachThief extends Player {
 	}
 	
 
-	// thief steals peaches from other players
+	/* 
+	 * thief steals peaches from other players
+	 * @override Player.interact(Player)
+	 * @param Player; another player
+	 */
 	public void interact(Player other) {
 		Random roll = new Random();
 		boolean success = true;
@@ -146,7 +163,11 @@ public class PeachThief extends Player {
 		}
 	}
 	
-	// eat a special peach
+	/*
+	 * thief eat an especial peach
+	 * @overload Player.eatPeach()
+	 * @param Peach; a peach
+	 */
 	private void eatPeach(Peach peach) {
 		if(peach.isBad()){
 			this.health -= peach.getRipeness();

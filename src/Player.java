@@ -185,15 +185,8 @@ public class Player{
  }
 
  /** ask for help when they need it */
- public void getHelp(){ 
-/*  world.getHome().callForHelp(this, location);
-  List<Peach> peaches = new ArrayList<>(Arrays.asList(new Peach(50),new Peach(50),new Peach(50),new Peach(50)));
-  // Create a new Peach list with 4 peaches of 50 ripeness.
-  Random ran=new Random();
-  Helper temp_helper=new Helper(world,Player.names[ran.nextInt(Player.names.length)],peaches,this);//Create a new helper at home
-  this.world.addPlayer(temp_helper);
-  this.helped=true;
-  */
+ public void getHelp(){ //forfeited mothode
+
  }
  
  @Override

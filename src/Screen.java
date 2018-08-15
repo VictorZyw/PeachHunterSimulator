@@ -29,6 +29,8 @@ public class Screen extends JFrame{
 		};
 		this.getContentPane().add(pane);
 		*/
+        
+        // Initiate JLabels(and JLabel[]s) to record some information 
 		this.locationInfo = new JLabel[world.getWorld().length*world.getWorld()[0].length];
         for(int i = 0; i<this.locationInfo.length; i++) {
         	this.locationInfo[i] = new JLabel(this.world.getLocations().get(i).getDescription().toString());
@@ -44,7 +46,12 @@ public class Screen extends JFrame{
     }
 
 
-    // check the order of player in a location to avoid printing different texts at the same place
+    /*
+     *  check the order of player in a location to avoid printing different texts at the same place
+     *  @param Location; the location which need to be checked
+     *  @param Player; the player in this location
+     *  @return int; the order of the player in this location
+     */
     private int checkPlayerOrder(Location location,Player player) {
     	for(int i = 0;i < location.getPlayers().size(); i++) {
     		if(location.getPlayers().get(i).equals(player)) {
@@ -54,14 +61,19 @@ public class Screen extends JFrame{
         return 1;
     }
 
+    /*
+     * method for showing the screen
+     * @param  null
+     */
     public void showScreen() {
         this.setLayout(null);
+        // print the location on screen
         for(int i = 0; i<world.getWorld().length*world.getWorld()[0].length; i++) {
             this.locationInfo[i].setText("<html>"+world.getLocations().get(i).getDescription()+"<br>"+world.getLocations().get(i).numberOfPeaches() + " peaches</html>");
             this.locationInfo[i].setBounds(i%world.getWorld().length*200+50,(int)(i/world.getWorld().length)*200,100,50);
             this.add(this.locationInfo[i]);
         }
-
+        // print all the alive players on screen
         for(int i = 0; i< this.world.getPlayers().size(); i++) {
         	if (this.world.getPlayers().get(i).alive == 1) {
 	            players[i].setText(world.getPlayers().get(i).toString());
@@ -74,9 +86,9 @@ public class Screen extends JFrame{
             }
         }
 
-
+     // print the real time information and the alive players on screen
         this.realTimeInformation.setText(world.getRealTimeInformation());
-        realTimeInformation.setBounds(5,world.getWorld().length*200,world.getWorld()[0].length*200-20,100);
+        realTimeInformation.setBounds(5,world.getWorld().length*200-50,world.getWorld()[0].length*200-20,160);
         this.add(realTimeInformation);
         playersInformation.setText(world.getPlayersInformation());
         playersInformation.setBounds(world.getWorld()[0].length*200+20,0,200,this.getHeight()-50);

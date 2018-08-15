@@ -39,8 +39,9 @@ public class PeachHunter extends Player {
 
     }
 
-    /**
-     *
+    /**pick all peaches to the number of max capacity of this hunter
+     * @param  no param
+     * @return void
      */
     private void pickPeachesAtTree(){
         int pick_counter=0;
@@ -61,17 +62,20 @@ public class PeachHunter extends Player {
         System.out.println("##Action:"+this.name+" picked "+String.valueOf(pick_counter)+" peaches at "+this.getLocation()+"." );
 
     }
-
+    /**pick all peaches to the number of max capacity of this hunter
+     * @param no param
+     * @return Location
+     */
     private Location goGrove(){
         int min=10000;
         boolean all_runout=true;
         Location target=this.getLocation();
         for (GroveVisit visit:this.grove_visits) {
-            if (!visit.runout) {
+            if (!visit.runout) {  //if there is a record showing that a grove has not run out
                 all_runout = false;
                 if (this.getLocation().distanceOf(visit.grove) < min) {
-                    min = this.getLocation().distanceOf(visit.grove);
-                    target = visit.grove;
+                    min = this.getLocation().distanceOf(visit.grove);  //find out the absolute distance
+                    target = visit.grove;  //TARGET: the nearest non-empty grove according to the record.
                 }
             }
         }
@@ -80,12 +84,12 @@ public class PeachHunter extends Player {
             all_locations.removeAll(location_visits);
             if (all_locations.size()<=0){
                 System.out.println("&&"+this.name+" found all groves run out, and no elsewhere to go.No choice but stay.");
-                return world.getHome();  // if all traversed and all run out.The hunter has to stay.
+                return world.getHome();  //TARGET: home. if all traversed and all run out.
             }
             for (Location loc:all_locations){
                 if(this.getLocation().distanceOf(loc)<min){   //try to locate the nearest uncharted cell
                     min=this.getLocation().distanceOf(loc);
-                    target=loc;        //find a nearest cell to go
+                    target=loc;        //TARGET: a nearest unsearched cell to go
                 }
             }
         }
@@ -97,13 +101,18 @@ public class PeachHunter extends Player {
 
 
     @Override
+    /**
+    /Overidden move method for hunters for one turn
+    @param Location  the final target this hunter want.
+    @return void
+     */
     public void moveOneStep(Location target){
         if (this.getLocation().equals((Location)target)){  //if this is the target
             System.out.println(this.getName()+" stays at "+this.getLocation());
             return;
         }else {
             Random ran=new Random();
-            if (ran.nextDouble()<0.5){
+            if (ran.nextDouble()<0.5){  //50% possibility to search up or down first
                 if (target.getPosition().getX() < this.getLocation().getPosition().getX()) {
                     move(Directions.UP);
                 } else if (target.getPosition().getX() > this.getLocation().getPosition().getX()) {
@@ -113,7 +122,7 @@ public class PeachHunter extends Player {
                 } else {
                     move(Directions.LEFT);
                 }
-            } else{
+            } else{  //50% possibility to search left or right first
                  if (target.getPosition().getY() > this.getLocation().getPosition().getY()) {
                      move(Directions.RIGHT);
                  } else if (target.getPosition().getY() < this.getLocation().getPosition().getY()) {
@@ -127,9 +136,9 @@ public class PeachHunter extends Player {
             location_visits.add(this.getLocation());
             // new Location passive status check and HP deduction, and handle all "enter" events
             if(this.getLocation().property.equals("PeachGrove")) {   //if it is a Grove
-                if (this.getterOfGrovevisit(this.getLocation())==null) {
+                if (this.getterOfGrovevisit(this.getLocation())==null) {  //if not recorded  put a new record into the hunter
                     grove_visits.add(new GroveVisit((PeachGrove) (this.getLocation()), ((PeachGrove) (this.getLocation())).getterOfPeachesAtTree().size() <= 0));  //add this grove to the record of this hunter
-                }else{
+                }else{  //if recorded ,renew the run out value of the visit record of the hunter
                     getterOfGrovevisit(this.getLocation()).runout=(((PeachGrove) (this.getLocation())).getterOfPeachesAtTree().size() <= 0);
                 }
                 ((PeachGrove)(this.getLocation())).playerVisitGrove(this);// deal with the hp deduction
@@ -138,22 +147,30 @@ public class PeachHunter extends Player {
             }
         }
     }
-
-
+/**
+a new subclass to store the grove visit record of the hunter.
+ */
     private class GroveVisit{
-
         protected PeachGrove grove;
         protected boolean runout;
+    /**
+     a new subclass to store the grove visit record of the hunter.
+     */
         public GroveVisit(PeachGrove grove) {
             this.runout = false;
             this.grove=grove;
         }
+
         public GroveVisit(PeachGrove grove,boolean runout) {
             this.runout = runout;
             this.grove=grove;
         }
     }
 
+    /**getter for the record of a certain Location
+    @param Location the Location we need to get the record
+     @return GroveVisit Object
+     */
     public GroveVisit getterOfGrovevisit(Location l) {
         for (GroveVisit visit : this.grove_visits) {    // Traverse all grovevisit records of this hunter
             if (((Location)l).equals((Location) (visit.grove))) {

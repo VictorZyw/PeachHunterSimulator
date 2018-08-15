@@ -9,6 +9,13 @@ public class Demo {
         world.addPlayer(peachHunter);
         world.getWorld()[2][2]=new PeachGrove(new Position(2,2),"Grove1",new ArrayList<Player>(),new ArrayList<Peach>());
         Random randNum = new Random();
+        /*Choose your Demo mode using Command Line Prompt.
+        5) Hunter:2  ; Grove:2 ; PeachPit 2; PeachThief 2;
+        4) Hunter:2  ; Grove:1 ; PeachPit 2; PeachThief 1;
+        3) Hunter:1  ; Grove:1 ; PeachPit 2; PeachThief 1;
+        2) Hunter:1  ; Grove:1 ; PeachPit 2;
+        1) Hunter:1  ; Grove:1
+          * */
         switch(choice){
             case 5:
                 PeachThief peachThief2 = new PeachThief(world, "Dog", world.getWorld()[1][1], new ArrayList<Peach>());
@@ -37,8 +44,8 @@ public class Demo {
             default:
                 break;
         };
-        world.helperConstructor();
-        Screen thisScreen = new Screen(world);
+        world.helperConstructor();   //construct all helpers ,equals to the number of non helpers. All not activated
+        Screen thisScreen = new Screen(world);  //create Screen
         thisScreen.showScreen();
 
         int turns = 0;
@@ -52,13 +59,16 @@ public class Demo {
             thisScreen.repaint();
 
             System.out.println("##############Turn "+turns+" Starts.##############");
-            world.helperGenerator();
+            world.helperGenerator();  //set all helper needed for this turn to alive(activated);
             for (Player player:world.getPlayers()){
                 if(player.alive==1){
                     System.out.println();
                     System.out.println("&&"+player.getName() +"'s turn!");
                     System.out.println(player.getName() + " is at " + player.getLocation()+ " at the beginning of this turn.");
-                    player.play();
+                    player.play();               //let each player play for this turn.
+                    for (Peach peach: player.peaches){
+                        peach.age();        //age all peaches along with each player
+                    }
                     System.out.println("&&"+player.getName() +" now has "+player.getHealth()+"HP.");
                 }
             }

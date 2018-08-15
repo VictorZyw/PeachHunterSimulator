@@ -16,11 +16,12 @@ public class Peach implements Comparable<Peach>{
   /** ages a peach in some way */
   public void age(){
     if(!bad) {
-      if (this.ripeness+5>30){
+      if (this.ripeness+2>30){
         this.ripeness=30;
         this.bad=true;
+        System.out.println("     A peach has become rotten.");
       }else {
-        this.ripeness += 3;
+        this.ripeness += 2;
       }
     }
   }
