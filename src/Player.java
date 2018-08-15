@@ -16,7 +16,8 @@ public class Player{
  protected List<Peach>  peaches;  // peaches 
  protected int          health;   // health of player
  protected RGB          colour;   // colour of player (if graphics is used)
- protected boolean helped;   //(New attribute) whether this player has called for help.default: false
+ protected boolean need_help;   //(New attribute) whether this player needs to be helped.default: false
+ protected boolean helper_sent;//(New attribute) whether a helper needs to be created to help this player.default: false
  public static String[]     names={"Chen","Zhang","Zhou","Jason","Robert","Smid","Mengchi"};  //(New attribute) store the random name
  protected String job;
  
@@ -37,7 +38,8 @@ public class Player{
   this.peaches = peaches;
   this.health = health;
   this.colour = rgb;
-  this.helped=false;  //helper
+  this.need_help=false;  //store if he needs to be helped.
+  this.helper_sent=false;  //store if a helper has been send.
   this.job="Player";
  }
  
@@ -80,12 +82,8 @@ public class Player{
   int sizeofpeaches0 = this.peaches.size();
   System.out.println(this.name + " is DEAD at " + this.getLocation().getDescription() + "!!RIP!!");
   dropPeaches(sizeofpeaches0);
-  this.getLocation().exit(this);       //remove the player from this location
-  for (int i=0;i<this.world.getPlayers().size();i++){   //remove the player from world
-   if(world.getPlayers().get(i).getName().equals(this.getName())){
-    this.world.getPlayers().remove(i);
-   }
-  }
+  this.world.dead_players.add(this);
+  this.getLocation().exit(this);
   return;
  }
 
@@ -160,7 +158,7 @@ public class Player{
   if (eaten_peach==null){
    return;
   } else{
-   this.setHealth(eaten_peach.bad?(this.getHealth()-eaten_peach.ripeness):(this.getHealth()+eaten_peach.ripeness));
+   this.setHealth(eaten_peach.isBad()?(this.getHealth()-eaten_peach.ripeness):(this.getHealth()+eaten_peach.ripeness));
   }
  }
  
@@ -187,13 +185,14 @@ public class Player{
 
  /** ask for help when they need it */
  public void getHelp(){ 
-  world.getHome().callForHelp(this, location);
+/*  world.getHome().callForHelp(this, location);
   List<Peach> peaches = new ArrayList<>(Arrays.asList(new Peach(50),new Peach(50),new Peach(50),new Peach(50)));
   // Create a new Peach list with 4 peaches of 50 ripeness.
   Random ran=new Random();
   Helper temp_helper=new Helper(world,Player.names[ran.nextInt(Player.names.length)],peaches,this);//Create a new helper at home
   this.world.addPlayer(temp_helper);
   this.helped=true;
+  */
  }
  
  @Override

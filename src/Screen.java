@@ -38,39 +38,6 @@ public class Screen extends JFrame{
 
         this.world = world;
 
-		
-
-		/* can not draw the lines after calling repaint() for unknown reasons
-
-		JPanel pane=new JPanel(){
-
-			public void paintComponent(Graphics g) {
-
-				for (int i = 0; i<=world.getWorld().length;i++) {
-
-					g.drawLine(0, i*200, world.getWorld()[0].length*200, i*200);
-
-				}
-
-				for (int j = 0; j <= world.getWorld()[0].length;j++) {
-
-					g.drawLine(j*200, 0, j*200, world.getWorld().length*200);
-
-				}
-
-				g.drawLine(world.getWorld()[0].length*200, 0, world.getWorld()[0].length*200,this.getHeight());
-
-				}
-
-		};
-
-		this.getContentPane().add(pane);
-
-		*/
-
-
-
-
 
         this.coordinatePrintTimes = new int[world.getPlayers().size()][3]; //[x,y,print times]
 
@@ -83,9 +50,9 @@ public class Screen extends JFrame{
             }
 
         }
-        this.players = new JLabel[world.getPlayers().size()];
+        this.players = new JLabel[world.getPlayers().size()+100];//by Yiwei
 
-        for(int i = 0; i < players.length; i++) {
+        for(int i = 0; i < world.getPlayers().size(); i++) {   //by Yiwei
 
             players[i] = new JLabel(world.getPlayers().get(i).toString());
 

@@ -7,29 +7,26 @@ import java.util.Arrays;
 
 
 
-public class World{
+public class World {
 
   protected Location[][] locations;
 
-  protected Location     home;
+  protected Location home;
 
   protected List<Player> players; // all players in the world
-
+  protected List<Player> dead_players; // all players in the world
   protected List<String> realTimeInformation = new ArrayList<String>();  // record the real time events
 
 
-
-
-
-  public World(){
+  public World() {
 
     locations = new Location[3][3];
 
-    for(int r=0; r<3; r+=1){
+    for (int r = 0; r < 3; r += 1) {
 
-      for(int c=0; c<3; c+=1){
+      for (int c = 0; c < 3; c += 1) {
 
-        locations[r][c] = new EmptyLocation(new Position(r,c), "Empty Location.");
+        locations[r][c] = new EmptyLocation(new Position(r, c), "Empty Location.");
 
       }
 
@@ -38,22 +35,27 @@ public class World{
     home = locations[0][0];
 
     players = new ArrayList<Player>();
+    this.dead_players=new ArrayList<Player>();
 
   }
 
 
+  public List<Player> getPlayers() {
+    return players;
+  }
 
-  public List<Player> getPlayers(){ return players; }
+  public Location[][] getWorld() {
+    return locations;
+  }
 
-  public Location[][] getWorld(){ return locations; }
+  public Location getHome() {
+    return home;
+  }
 
-  public Location getHome(){ return home; }
 
+  public List<Location> getLocations() {
 
-
-  public List<Location> getLocations(){
-
-    List<Location> list = new ArrayList<Location>(locations.length*locations[0].length);
+    List<Location> list = new ArrayList<Location>(locations.length * locations[0].length);
 
     for (Location[] array : locations) {
 
@@ -73,13 +75,35 @@ public class World{
 
    */
 
-  public World addPlayer(Player p){
+  public World addPlayer(Player p) {
 
     players.add(p);
     return this;
 
   }
 
+  public void helperGenerator(){
+  List<Player> temp = new ArrayList<Player>();
+    for(Player p:this.getPlayers()) {
+      if (p.need_help&& !p.helper_sent) {
+        List<Peach> peaches_of_helper = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+          peaches_of_helper.add(new Peach(10));
+        }
+        temp.add(new Helper(this, "Mercy", peaches_of_helper, p));
+        p.helper_sent=true;
+      }
+    }
+    int angels=temp.size();
+    this.getPlayers().addAll(temp);
+    if(angels>0){
+      System.out.println("@ "+String.valueOf(angels)+" angels have arrived at this world to rescue you mortals!!");
+    }
+  }
+
+  public void deadPlayersHandler(){
+    this.getPlayers().removeAll(dead_players);  //remove the player from world
+  }
 
 
   public boolean move(Player p, int direction){

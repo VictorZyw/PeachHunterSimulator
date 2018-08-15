@@ -9,7 +9,7 @@ public class PeachHunter extends Player {
     private Location target;
     protected int maxcarry;  //(New attribute)max capacity a player can carry
     public PeachHunter(World w, String name, Location location, List<Peach> peaches){
-        super(w,name+"-PeachHunter"+String.valueOf(hunter_counter),location,peaches,100,RGB.RED);
+        super(w,name+"-Hunter"+String.valueOf(hunter_counter),location,peaches,100,RGB.RED);
         this.grove_visits=new ArrayList<GroveVisit>();
         this.location_visits=new ArrayList<>();
         location_visits.add(location);
@@ -97,7 +97,8 @@ public class PeachHunter extends Player {
 
     @Override
     public void moveOneStep(Location target){
-        if (this.getLocation().getPosition().equals(target)){  //if this is the target
+        if (this.getLocation().equals((Location)target)){  //if this is the target
+            System.out.println(this.getName()+" stays at "+this.getLocation());
             return;
         }else {
             if (target.getPosition().getX() < this.getLocation().getPosition().getX()) {
@@ -110,9 +111,13 @@ public class PeachHunter extends Player {
                 move(Directions.LEFT);
             }
             location_visits.add(this.getLocation());
-            // new Location passive passive status check
+            // new Location passive status check and HP deduction, and handle all "enter" events
             if(this.getLocation().property.equals("PeachGrove")) {   //if it is a Grove
-                grove_visits.add(new GroveVisit((PeachGrove)(this.getLocation())));  //add this grove to the record of this hunter
+                if (this.getterOfGrovevisit(this.getLocation())==null) {
+                    grove_visits.add(new GroveVisit((PeachGrove) (this.getLocation()), ((PeachGrove) (this.getLocation())).getterOfPeachesAtTree().size() <= 0));  //add this grove to the record of this hunter
+                }else{
+                    getterOfGrovevisit(this.getLocation()).runout=(((PeachGrove) (this.getLocation())).getterOfPeachesAtTree().size() <= 0);
+                }
                 ((PeachGrove)(this.getLocation())).playerVisitGrove(this);// deal with the hp deduction
             } else if (this.getLocation().property.equals("PeachPit")){    //if it is a Pit
                 ((PeachPit)this.getLocation()).fallIntoPit(this,(Home)(this.getWorld().home));  //fall into a pit. check the hp deduction
@@ -129,9 +134,20 @@ public class PeachHunter extends Player {
             this.runout = false;
             this.grove=grove;
         }
+        public GroveVisit(PeachGrove grove,boolean runout) {
+            this.runout = runout;
+            this.grove=grove;
+        }
     }
 
-
+    public GroveVisit getterOfGrovevisit(Location l) {
+        for (GroveVisit visit : this.grove_visits) {    // Traverse all grovevisit records of this hunter
+            if (((Location)l).equals((Location) (visit.grove))) {
+                return visit;
+            }
+        }
+        return null;
+    }
 
     @Override
     /** This is the logic of the player.
@@ -142,17 +158,12 @@ public class PeachHunter extends Player {
         if (this.getHealth()<= 0) {            // if a player' hp is below or equal to 0, he is dead and drop all peaches on the ground .
             die();
             return;
-        }else if (this.getHealth() < 10) {   //when  hp<10
-            if(!this.helped){                     //and no helper sent yet , get help ,create new helper.
-                getHelp();                        //*REMEMBER to set the boolean value to false when interacted with helper. *
-                return;
-            }else {                               //else this player remains disabled
-                return;
-            }
+        }else if (this.getHealth() < 10) {
+            this.need_help=true;  //when  hp<10 set need_help = true
+            return;   //this player remains disabled
         } else if (this.getHealth() < 40) {
             eatPeach();
         }
-
             // HP Capacity status check
         if (this.getHealth() < 50) {         //if a player' hp is below 50, set the max number he can carry to 25
             this.maxcarry=25;
@@ -168,7 +179,7 @@ public class PeachHunter extends Player {
             }
         }
         // Location active action check
-        System.out.println(" "+this.getName()+" has "+this.peaches.size()+" peaches." );//if at PeachGrove
+        System.out.println(" "+this.getName()+" has "+this.peaches.size()+" peaches." );
         if(this.getLocation().property.equals("Home")){                 //if at Home
             int sizeofpeaches2=this.peaches.size();
             if (sizeofpeaches2==0){                                       //if no peaches ,then go to find grove
@@ -197,7 +208,7 @@ public class PeachHunter extends Player {
                 return;
             }
         } else if (this.getLocation().property.equals("PeachPit")){
-            pickPeachesAtLocation();
+            this.pickPeachesAtLocation();
             if (this.peaches.size() >= 50 ||this.peaches.size() >= maxcarry) {//if carrying enough peaches or cannot carry any more
                 moveOneStep(goHome());
                 return;

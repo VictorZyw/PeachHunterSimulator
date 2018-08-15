@@ -4,7 +4,7 @@ import java.util.Random;
 public class PeachThief extends Player {
 	protected static int thief_counter=0;//counter for the Player
 	public PeachThief(World w, String name, Location location, List<Peach> peaches) {
-		super(w, name+"-Thief"+thief_counter, location, peaches, 50, RGB.GREEN);
+		super(w, name+"-Thief"+thief_counter, location, peaches, 70, RGB.GREEN);
 		this.job = "PeachThief";
 		thief_counter++;
 	}
@@ -131,8 +131,10 @@ public class PeachThief extends Player {
 				((PeachGrove)this.getLocation()).playerVisitGrove(this);
 			}
 			if (this.getLocation().property == "PeachPit") {
-				((PeachPit)this.getLocation()).fallIntoPit(this,(Home)(this.getWorld().home));
-				pickPeachesAtLocation();
+				int fall_times=((PeachPit)this.getLocation()).fallIntoPit(this,(Home)(this.getWorld().home));
+				if(fall_times==1){
+					pickPeachesAtLocation();
+				}
 			}
 		}
 	}
@@ -151,7 +153,8 @@ public class PeachThief extends Player {
 		}
 		// try to steal more peaches
 		while(success && other.getPeaches().size() > 0) {
-			if (roll.nextDouble() <= 0.75) {
+			Random roll_new = new Random();
+			if (roll_new.nextDouble() <= 0.75) {
 				this.peaches.add(other.getPeach());
 			}else {
 				success = false;
