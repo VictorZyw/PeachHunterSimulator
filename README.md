@@ -1,3 +1,3 @@
-# Salted-Fish
-A Game Demo by Yiwei,Weihang & Ran
-with Java Swing
+# Peach Hunter Run
+
+A Java Swing Desktop Application PoC for a Board Game
