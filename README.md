@@ -1,2 +1,3 @@
 # Salted-Fish
-A Demo by Yiwei,Weihang & Ran
+A Game Demo by Yiwei,Weihang & Ran
+with Java Swing
